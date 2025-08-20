@@ -231,3 +231,5 @@ You can test the API endpoints using **Postman** or **Thunder Client**.
 
 1. Import the provided collection or manually create requests.
 2. For further details on API calls, check the `api_call_for_postman.txt` file in the root of the project.
+
+---
