@@ -1,6 +1,3 @@
-[guid]::NewGuid().ToString("N")             
-a13356a1abcc43848f47e0a1e85f7535            
-
 # Smart Device Platform API
 
 A **Node.js + Express** REST API for managing IoT devices with:
@@ -39,16 +36,28 @@ JWT_EXPIRES_IN=1d
 > **Note:** Tests use an in-memory MongoDB and do not use `MONGO_URI`.
 
 ---
+
+## 🚀 Setup & Run Locally (without Docker)
+
 ### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
-cd <your-project-folder>
+git clone -b master https://github.com/Sidd-hass/smart-device-platform.git
+cd smart-device-platform
 ```
 
-## 🚀 Run Locally (without Docker)
-
+### 2. Install dependencies
 ```bash
 npm install
+```
+
+### 3. Run tests (verify everything works)
+```bash
+npm run test
+```
+> Runs Jest test suite against in-memory MongoDB (no DB setup required).
+
+### 4. Start the API
+```bash
 npm start
 # or: npm run dev   # if nodemon is configured
 ```
@@ -140,67 +149,20 @@ All endpoints below require a valid `Authorization: Bearer <JWT_TOKEN>` header.
 { "name": "Living Room Light", "type": "light", "status": "active" }
 ```
 
-**Response**
-```json
-{
-  "success": true,
-  "device": { "id": "d1", "name": "Living Room Light", "type": "light", "status": "active", "last_active_at": null, "owner_id": "u1" }
-}
-```
-
 ### List Devices
 **GET** `/devices`
-
-**Response**
-```json
-{
-  "success": true,
-  "devices": [
-    { "id": "d1", "name": "Living Room Light", "type": "light", "status": "active", "last_active_at": null, "owner_id": "u1" }
-  ]
-}
-```
 
 ### Update Device
 **PATCH** `/devices/:id`
 
-**Body** (example)
-```json
-{ "name": "Updated Light", "status": "inactive" }
-```
-
-**Response**
-```json
-{ "success": true, "device": { "id": "d1", "name": "Updated Light", "status": "inactive", "type": "light", "last_active_at": null } }
-```
-
 ### Delete Device
 **DELETE** `/devices/:id`
-
-**Response**
-```json
-{ "success": true, "message": "Device deleted" }
-```
 
 ---
 
 ## ❤️ Heartbeat
 
 **POST** `/devices/:id/heartbeat`
-
-**Sample Payload**
-```json
-{ "status": "active" }
-```
-
-**Sample Response**
-```json
-{
-  "success": true,
-  "message": "Device heartbeat recorded",
-  "last_active_at": "2025-08-17T10:15:30Z"
-}
-```
 
 ---
 
@@ -209,32 +171,11 @@ All endpoints below require a valid `Authorization: Bearer <JWT_TOKEN>` header.
 ### Create Log Entry
 **POST** `/devices/:id/logs`
 
-**Body (example for smart meter)**
-```json
-{ "event": "units_consumed", "value": 2.5 }
-```
-
 ### Fetch Last N Logs
 **GET** `/devices/:id/logs?limit=10`
 
-**Sample Response**
-```json
-{
-  "success": true,
-  "logs": [
-    { "id": "l1", "event": "units_consumed", "value": 2.5, "timestamp": "2025-08-17T08:00:00Z" },
-    { "id": "l2", "event": "units_consumed", "value": 1.2, "timestamp": "2025-08-17T09:00:00Z" }
-  ]
-}
-```
-
 ### Aggregated Usage
 **GET** `/devices/:id/usage?range=24h`
-
-**Sample Response**
-```json
-{ "success": true, "device_id": "d2", "total_units_last_24h": 15.7 }
-```
 
 ---
 
@@ -250,10 +191,6 @@ All endpoints below require a valid `Authorization: Bearer <JWT_TOKEN>` header.
 A cron job runs **every 15 minutes** to auto-deactivate devices that have:
 - `status: "active"` **and**
 - `last_active_at` is **older than 24h** or **null**
-
-Effect: sets `status` → `"inactive"`.
-
-> The job starts automatically when the server connects to MongoDB. It is not run during tests (`NODE_ENV="test"`).
 
 ---
 
@@ -286,3 +223,11 @@ npm run test
 - The system only needs **basic** log aggregation (e.g., last 24h sum) for demonstration purposes.
 
 ---
+
+
+## API Testing with Postman
+
+You can test the API endpoints using **Postman** or **Thunder Client**.
+
+1. Import the provided collection or manually create requests.
+2. For further details on API calls, check the `api_call_for_postman.txt` file in the root of the project.

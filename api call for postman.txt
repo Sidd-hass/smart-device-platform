@@ -1,0 +1,73 @@
+//signup
+curl -X POST http://localhost:3000/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Doe","email":"john@example.com","password":"SecurePass123","role":"user"}'
+
+
+//login get the bearer token
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "john@example.com", "password": "SecurePass123"}'
+
+
+// create the device
+curl -X POST http://localhost:3000/devices \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI" \
+  -d '{
+    "name": "Living Room Light",
+    "type": "light",
+    "status": "active"
+  }'
+
+
+// get the device heartbeat
+curl -X POST http://localhost:3000/devices/68a4cc19584cc2fee0d6c5ca/heartbeat \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI" \
+-H "Content-Type: application/json" \
+-d '{"status":"active"}'
+
+
+// list devices
+curl -X GET "http://localhost:3000/devices" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI"
+
+
+// updated device
+curl -X PATCH "http://localhost:3000/devices/68a3851b965de290323ff85f" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI" \
+-H "Content-Type: application/json" \
+-d '{"name":"Living Room Light v2","status":"inactive"}'
+
+
+
+// delete device
+curl -X DELETE "http://localhost:3000/devices/68a3851b965de290323ff85f" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI"
+
+
+// create log
+curl -X POST "http://localhost:3000/devices/68a3851b965de290323ff85f/logs" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI" \
+-H "Content-Type: application/json" \
+-d '{"event":"units_consumed","value":2.5}'
+
+
+// fetch last 10 logs 
+curl -X GET "http://localhost:3000/devices/68a3851b965de290323ff85f/logs?limit=10" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI"
+
+
+// fetch aggregated usage
+curl -X GET "http://localhost:3000/devices/68a3851b965de290323ff85f/usage?range=24h" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI"
+
+
+
+
+
+
+
+// test rate limit run this command in the powershell
+
+for /l %i in (1,1,105) do curl -s -o NUL -w "%{http_code}\n" -X GET http://localhost:3000/devices -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI"
