@@ -1,21 +1,45 @@
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-export const authMiddleware = (req, res, next) => {
+/**
+ * Middleware to protect routes using access tokens
+ */
+export const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token provided" });
+
+  // 1️⃣ Check if Authorization header exists and has Bearer token
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Access token missing" });
   }
 
-  const token = authHeader.split(" ")[1]; // remove "Bearer"
-  if (!token) {
-    return res.status(401).json({ message: "Invalid token format" });
-  }
+  const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // store user info in request
-    next();
+    // 2️⃣ Verify access token using the ACCESS_TOKEN_SECRET
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    // 3️⃣ Fetch user from DB to attach full info to req
+    const user = await User.findById(decoded.sub).select("-password");
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "User not found" });
+    }
+
+    req.user = user; // attach user info to request
+    next(); // continue to the route
   } catch (err) {
-    return res.status(403).json({ message: "Token is not valid" });
+    // 4️⃣ Differentiate between expired token and invalid token
+    if (err.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ success: false, message: "Access token expired" });
+    }
+
+    return res
+      .status(401)
+      .json({ success: false, message: "Invalid access token" });
   }
 };
