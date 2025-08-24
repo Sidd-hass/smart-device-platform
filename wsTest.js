@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const SERVER_URL = process.env.SERVER_URL || "http://localhost:3000";
-const EMAIL = process.env.TEST_USER_EMAIL || "john@example.com";
+const EMAIL = process.env.TEST_USER_EMAIL || "jojo@example.com";
 const PASSWORD = process.env.TEST_USER_PASSWORD || "SecurePass123";
 
 async function login() {
@@ -45,7 +45,7 @@ async function start() {
 
       // Send initial heartbeat
       socket.emit("heartbeat", {
-        deviceId: "68a9d01460c445493f7ffb59",
+        deviceId: "68aafff431aed150fce220ca",
         status: "online",
       });
     });
