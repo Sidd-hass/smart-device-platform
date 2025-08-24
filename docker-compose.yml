@@ -2,19 +2,20 @@ version: "3.9"
 
 services:
 
-  # api:
-  #   build: .
-  #   container_name: node_api
-  #   ports:
-  #     - "3000:3000"
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - mongo
-  #     - redis
-  #   volumes:
-  #     - .:/usr/src/app
-  #   command: npm run dev  # or: node server.js
+  api:
+    build: .
+    container_name: node_api
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - .:/app          # For dev: reflect code changes
+      - /app/node_modules  # Prevent overwriting node_modules
+    command: npm run dev  # Use "npm start" in production
 
   mongo:
     image: mongo:6.0

@@ -8,13 +8,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --production
+RUN npm install
 
-# Copy the rest of the project
+# Copy project files
 COPY . .
 
 # Expose API port
 EXPOSE 3000
 
-# Start the app
+# Default command
 CMD ["npm", "start"]

@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "http://localhost:3000/auth/signup",
+			"name": "/auth/signup",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -33,11 +33,8 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/auth/login",
+			"name": "/auth/login",
 			"request": {
-				"auth": {
-					"type": "noauth"
-				},
 				"method": "POST",
 				"header": [
 					{
@@ -59,10 +56,36 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/devices",
+			"name": "/auth/refresh",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGE5NmExNjg3ZTA3NDUzNjQxZmVhZTciLCJpYXQiOjE3NTU5MzcwNTUsImV4cCI6MTc1NjU0MTg1NX0.ZmYEsWh5cNBBBr7yltgvHcmKSivrw82OzBcZtpGsVSI\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/auth/refresh"
+			},
+			"response": []
+		},
+		{
+			"name": "/post/device",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGFhMTRjZjY1OGNhZThlOGM5MTMwMTIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk3NjkxNywiZXhwIjoxNzU1OTc3ODE3fQ.fM51VTxFWcvHllwPNGXhcBuG6EL1H3bW15OcDF3Nksc"
+					}
 				},
 				"method": "POST",
 				"header": [
@@ -77,7 +100,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"Living Room Light\",\n    \"type\": \"light\",\n    \"status\": \"active\"\n  }",
+					"raw": "{\n    \"name\": \"jeans\",\n    \"type\": \"greay\",\n    \"status\": \"active\"\n  }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -89,10 +112,33 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/devices/68a4cc19584cc2fee0d6c5ca/heartbeat",
+			"name": "/get/device",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YThjMWU4ZDg5YTI2ZGNhNGVkYzJjYSIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1OTE4MTA1LCJleHAiOjE3NTU5MjE3MDV9.N2RNcJo0b48vxBBX1_KNOGwkDNCWr3MkGHIjNAYBB3c"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTRjYjU3NTg0Y2MyZmVlMGQ2YzVjNiIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1NjMwNDkzLCJleHAiOjE3NTU2MzQwOTN9.NLoPs1ioV__5QE4f81LpG0MZci1NxFvTYC6yub-zCvI"
+					}
+				],
+				"url": "http://localhost:3000/devices"
+			},
+			"response": []
+		},
+		{
+			"name": "/device_id/heartbeat",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YThjMWU4ZDg5YTI2ZGNhNGVkYzJjYSIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1ODkwMTYyLCJleHAiOjE3NTU4OTM3NjJ9.Zr436edSOZQMxGjoAJ8Z_HqNAfDq_NJUmzhVBgluhGI"
+					}
 				},
 				"method": "POST",
 				"header": [
@@ -114,12 +160,12 @@
 						}
 					}
 				},
-				"url": "http://localhost:3000/devices/68a4cc19584cc2fee0d6c5ca/heartbeat"
+				"url": "http://localhost:3000/devices/68a8c445d89a26dca4edc2d0/heartbeat"
 			},
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/devices/68a3851b965de290323ff85f",
+			"name": "/update/device",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -149,7 +195,7 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/devices/68a3851b965de290323ff85f",
+			"name": "/delete/device",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -166,10 +212,13 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/devices/68a3851b965de290323ff85f/logs",
+			"name": "/device/device_id/logs",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGFhMTRjZjY1OGNhZThlOGM5MTMwMTIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk3NjkxNywiZXhwIjoxNzU1OTc3ODE3fQ.fM51VTxFWcvHllwPNGXhcBuG6EL1H3bW15OcDF3Nksc"
+					}
 				},
 				"method": "POST",
 				"header": [
@@ -191,15 +240,18 @@
 						}
 					}
 				},
-				"url": "http://localhost:3000/devices/68a3851b965de290323ff85f/logs"
+				"url": "http://localhost:3000/devices/68aa14e1658cae8e8c913018/logs"
 			},
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/devices/68a3851b965de290323ff85f/logs?limit=10",
+			"name": "/device/device_id/log-limit",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGFhMTRjZjY1OGNhZThlOGM5MTMwMTIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk3Nzk2NCwiZXhwIjoxNzU1OTc4ODY0fQ.uWkjId7Sd7uZBWWvvpAnJnYf-6oKyAkBFf0LDzlMxMk"
+					}
 				},
 				"method": "GET",
 				"header": [
@@ -209,7 +261,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:3000/devices/68a3851b965de290323ff85f/logs?limit=10",
+					"raw": "http://localhost:3000/devices/68aa053ab783749760437857/logs?limit=10",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -217,7 +269,7 @@
 					"port": "3000",
 					"path": [
 						"devices",
-						"68a3851b965de290323ff85f",
+						"68aa053ab783749760437857",
 						"logs"
 					],
 					"query": [
@@ -231,10 +283,13 @@
 			"response": []
 		},
 		{
-			"name": "http://localhost:3000/devices/68a3851b965de290323ff85f/usage?range=24h",
+			"name": "/devices/device_id/usage",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YThjMWU4ZDg5YTI2ZGNhNGVkYzJjYSIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU1ODkwMTYyLCJleHAiOjE3NTU4OTM3NjJ9.Zr436edSOZQMxGjoAJ8Z_HqNAfDq_NJUmzhVBgluhGI"
+					}
 				},
 				"method": "GET",
 				"header": [
@@ -244,7 +299,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:3000/devices/68a3851b965de290323ff85f/usage?range=24h",
+					"raw": "http://localhost:3000/devices/68a8c445d89a26dca4edc2d0/usage?range=24h",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -252,7 +307,7 @@
 					"port": "3000",
 					"path": [
 						"devices",
-						"68a3851b965de290323ff85f",
+						"68a8c445d89a26dca4edc2d0",
 						"usage"
 					],
 					"query": [
@@ -262,6 +317,117 @@
 						}
 					]
 				}
+			},
+			"response": []
+		},
+		{
+			"name": "get/export/devices",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGFhMTRjZjY1OGNhZThlOGM5MTMwMTIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk3ODg5OCwiZXhwIjoxNzU1OTc5Nzk4fQ.zx1E5xELck-iZ6-KZAgl0_YiEyMYtJ8qd_EwPiIxwc0"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGE5NmExNjg3ZTA3NDUzNjQxZmVhZTciLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk3MjA3OCwiZXhwIjoxNzU1OTcyOTc4fQ.zMLR7z4E1Sw-HIMVLkF8eqfAv8DrQhT5l4iBo1doIJk"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/export/devices?startDate=2025-08-01&endDate=2025-08-23&format=csv",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"export",
+						"devices"
+					],
+					"query": [
+						{
+							"key": "startDate",
+							"value": "2025-08-01"
+						},
+						{
+							"key": "endDate",
+							"value": "2025-08-23"
+						},
+						{
+							"key": "format",
+							"value": "csv"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/post/export/devicelogs",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGFhMTRjZjY1OGNhZThlOGM5MTMwMTIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk4MDEwNCwiZXhwIjoxNzU1OTgxMDA0fQ.E0oZeiAp1jWDfHY1rEqQywebclgH0oQN36h9pm8KrQo"
+					}
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGE5NmExNjg3ZTA3NDUzNjQxZmVhZTciLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk2OTEyNywiZXhwIjoxNzU1OTcwMDI3fQ.-bvjxW97WIDddU130pE9xtLU4kafbt7VhOIdZnl2_oY"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"startDate\":\"2025-08-01\",\"endDate\":\"2025-08-23\",\"format\":\"csv\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/export/devicelogs"
+			},
+			"response": []
+		},
+		{
+			"name": "/export/usage-report",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OGFhMTRjZjY1OGNhZThlOGM5MTMwMTIiLCJyb2xlIjoidXNlciIsImlhdCI6MTc1NTk4MDEwNCwiZXhwIjoxNzU1OTgxMDA0fQ.E0oZeiAp1jWDfHY1rEqQywebclgH0oQN36h9pm8KrQo"
+					}
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <YOUR_JWT_TOKEN>"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"startDate\": \"2025-08-01\",\n  \"endDate\": \"2025-08-23\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/export/usage-report"
 			},
 			"response": []
 		}

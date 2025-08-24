@@ -1,93 +1,81 @@
 # Smart Device Platform API
 
-A **Node.js + Express** REST API for managing IoT devices with:
-- JWT authentication
-- Per-user rate limiting (100 req/min)
+A **Node.js + Express + MongoDB + Redis** REST API for managing IoT devices, with full **real-time device monitoring, analytics, caching, and secure authentication**.  
+
+**Key Features Completed:**
+
+- JWT-based authentication with **access & refresh tokens**
+- Redis caching for device lists, user data, and analytics queries
 - Device heartbeats and activity tracking
-- Usage logs & simple analytics
-- Background job to auto-deactivate inactive devices
+- Real-time device status updates via **WebSocket**
+- Usage logs & aggregated analytics
+- Async export of device logs (JSON/CSV) with job status tracking
 - Jest test suite (uses in-memory MongoDB)
-- Dockerized setup with MongoDB
+- Dockerized setup with MongoDB & Redis  
 
 ---
 
 ## ✅ Prerequisites
 
-- Node.js 18+ (for local dev)
-- Docker & Docker Compose (for containerized run)
-- (Optional) Local MongoDB if you run without Docker
+- Node.js 18+  
+- Docker & Docker Compose  
+- Redis (Dockerized or local)  
+- Postman / Thunder Client for API testing  
 
 ---
 
 ## ⚙️ Environment Variables
 
-Create a `.env` at the project root:
+Create `.env` at project root:
 
-```env
-PORT=3000
-# For Dockerized MongoDB setup
-MONGO_URI=mongodb://mongo:27017/smart_device_platform
-# For local MongoDB setup, you can instead use:
-# MONGO_URI=mongodb://localhost:27017/smart_device_platform
-JWT_SECRET=a13356a1abcc43848f47e0a1e85f7535
-JWT_EXPIRES_IN=1d
-```
+PORT=3000  
+MONGO_URI=mongodb://localhost:27018/sdm  
+REDIS_URL=redis://localhost:6379  
 
-> **Note:** Tests use an in-memory MongoDB and do not use `MONGO_URI`.
+# Cache TTLs  
+DEVICE_LIST_TTL_SECONDS=1200  
+USER_DATA_TTL_SECONDS=1800  
+ANALYTICS_TTL_SECONDS=300  
 
----
+# JWT Tokens  
+ACCESS_TOKEN_SECRET=...  
+REFRESH_TOKEN_SECRET=...  
+ACCESS_TOKEN_EXPIRES_IN=15m  
+REFRESH_TOKEN_EXPIRES_IN=7d  
 
-## 🚀 Setup & Run Locally (without Docker)
+NODE_ENV=development  
 
-### 1. Clone the repository
-```bash
-git clone -b master https://github.com/Sidd-hass/smart-device-platform.git
-cd smart-device-platform
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Run tests (verify everything works)
-```bash
-npm run test
-```
-> Runs Jest test suite against in-memory MongoDB (no DB setup required).
-
-### 4. Start the API
-```bash
-npm start
-# or: npm run dev   # if nodemon is configured
-```
-
-API base URL: `http://localhost:${PORT}` (defaults to `3000`).
+> Note: Your Postman requests need a valid JWT token (access token) in the Authorization header.
 
 ---
 
-## 🐳 Run with Docker
+## 🚀 Setup & Run Locally
 
-Build and start in detached mode:
+git clone -b master <repo-url>  
+cd smart-device-platform  
+npm install  
+npm run test   # run Jest tests (in-memory MongoDB)  
+npm run dev    # start API server with nodemon  
 
-```bash
-docker compose up -d --build
-```
+API base URL: http://localhost:3000
+
+---
+
+## 🐳 Run with Docker Compose
+
+docker compose up -d --build  
 
 - API: http://localhost:3000  
-- MongoDB: exposed on `27017` (data persisted in `mongo_data` volume)
+- MongoDB: 27018 (mapped locally)  
+- Redis: 6379  
 
-See logs:
+Check logs:
 
-```bash
-docker compose logs -f api
-```
+docker compose logs -f api  
 
-Stop:
+Stop services:
 
-```bash
-docker compose down
-```
+docker compose down  
 
 ---
 
@@ -96,140 +84,108 @@ docker compose down
 ### Sign Up
 **POST** `/auth/signup`
 
-**Request Body**
-```json
+**Request Body**  
 { "name": "John Doe", "email": "john@example.com", "password": "SecurePass123", "role": "user" }
-```
 
-**Sample cURL (Linux/macOS)**
-```bash
-curl -X POST http://localhost:3000/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"name":"John Doe","email":"john@example.com","password":"SecurePass123","role":"user"}'
-```
-
-> On Windows **PowerShell**, put everything on one line:
-> ```powershell
-> curl -Method POST http://localhost:3000/auth/signup -H "Content-Type: application/json" -Body '{"name":"John Doe","email":"john@example.com","password":"SecurePass123","role":"user"}'
-> ```
+**cURL Example**  
+curl -X POST http://localhost:3000/auth/signup -H "Content-Type: application/json" -d '{"name":"John Doe","email":"john@example.com","password":"SecurePass123","role":"user"}'
 
 ### Login
 **POST** `/auth/login`
 
-**Request Body**
-```json
+**Request Body**  
 { "email": "john@example.com", "password": "SecurePass123" }
-```
 
-**Sample cURL**
-```bash
-curl -X POST http://localhost:3000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"john@example.com","password":"SecurePass123"}'
-```
-
-**Response**
-```json
+**Response**  
 { "success": true, "token": "<JWT_TOKEN>" }
-```
 
-Use this token as `Authorization: Bearer <JWT_TOKEN>` for protected endpoints.
-
----
-
-## 📦 Devices API (protected)
-
-All endpoints below require a valid `Authorization: Bearer <JWT_TOKEN>` header.
-
-### Create Device
-**POST** `/devices`
-
-**Body**
-```json
-{ "name": "Living Room Light", "type": "light", "status": "active" }
-```
-
-### List Devices
-**GET** `/devices`
-
-### Update Device
-**PATCH** `/devices/:id`
-
-### Delete Device
-**DELETE** `/devices/:id`
+Use `Authorization: Bearer <JWT_TOKEN>` for all protected endpoints.
 
 ---
 
-## ❤️ Heartbeat
+## 📦 Devices API (Protected)
 
-**POST** `/devices/:id/heartbeat`
+| Endpoint | Method | Description |
+|----------|--------|------------|
+| /devices | POST | Create device |
+| /devices | GET | List devices |
+| /devices/:id | PATCH | Update device |
+| /devices/:id | DELETE | Delete device |
+| /devices/:id/heartbeat | POST | Update heartbeat |
+
+**Sample cURL**  
+curl -X POST http://localhost:3000/devices -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json" -d '{"name":"Living Room Light","type":"light","status":"active"}'
 
 ---
 
-## 📊 Data & Analytics
+## 📊 Data Export & Reporting
 
-### Create Log Entry
-**POST** `/devices/:id/logs`
+### Export Device Logs
+**GET** `/export/devices`  
+**POST** `/export/devicelogs`
 
-### Fetch Last N Logs
-**GET** `/devices/:id/logs?limit=10`
+**Query / Body Parameters**  
+{ "startDate": "2025-08-01", "endDate": "2025-08-23", "format": "json" }  
 
-### Aggregated Usage
-**GET** `/devices/:id/usage?range=24h`
+**Async Export Example**  
+If logs > 50 entries, returns:  
+{ "success": true, "jobId": "abcd-1234-efgh", "message": "Async export job started" }
+
+**Check Status**  
+**GET** `/export/status/<jobId>`
+
+**cURL Example**  
+curl -X POST http://localhost:3000/export/devicelogs -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json" -d '{"startDate":"2025-08-01","endDate":"2025-08-23","format":"json"}'
+
+### Usage Reports / Charts
+Aggregates logs by device and date  
+
+**Example Response**  
+{ "68aa14e1658cae8e8c913018": { "totalEvents": 1, "dailyUsage": { "2025-08-23": { "events": 1, "totalValue": 2.5 } } } }
+
+---
+
+## ⚡ Real-time Device Status (WebSocket)
+
+Run `node wsTest.js` after starting API & Docker Compose.  
+
+Connect via WebSocket to receive heartbeat events in real time:  
+
+const ws = new WebSocket("ws://localhost:3000?token=<JWT_TOKEN>");  
+ws.on("message", (msg) => console.log(msg));
 
 ---
 
 ## 🛡️ Rate Limiting
 
-- **100 requests/min per user** (based on authenticated `user.id`; falls back to IP for unauthenticated).
-- Exceeding the limit returns **HTTP 429** with standard rate-limit headers.
+100 requests/min per user  
+Exceeding returns **HTTP 429**
 
 ---
 
 ## ⏱️ Background Job
 
-A cron job runs **every 15 minutes** to auto-deactivate devices that have:
-- `status: "active"` **and**
-- `last_active_at` is **older than 24h** or **null**
+Cron runs every 15 min  
+Deactivates devices inactive >24h  
 
 ---
 
-## 🧪 Tests
+## 🧪 Testing Steps
 
-- Uses **Jest** + **Supertest**
-- Spins up an **in-memory MongoDB** (no local DB required)
-- Covers Auth + Devices CRUD + Heartbeat
+1. **Auth**: Sign up → login → get JWT  
+2. **Device CRUD**: Create, list, update, delete devices  
+3. **Heartbeat**: POST `/devices/:id/heartbeat` → verify updated status  
+4. **Export**: POST `/export/devicelogs` → test JSON & CSV  
+   - GET `/export/status/<jobId>` for async jobs  
+5. **Analytics**: GET `/devices/:id/usage?range=24h` → confirm aggregated totals  
+6. **WebSocket**: Run `wsTest.js` → verify real-time heartbeat events  
 
-Run:
-```bash
-npm run test
-```
-
----
-
-## 🧰 Troubleshooting
-
-- **500 with `"req.body undefined"`**: Make sure you send `Content-Type: application/json` and a valid JSON body in Postman/cURL.
-- **Windows cURL**: Prefer a single line command in PowerShell or use WSL. For CMD, avoid line continuations like `\`.
-- **Docker cannot connect to Mongo**: Ensure `MONGO_URI=mongodb://mongo:27017/smart_device_platform` when using Compose and that the `mongo` service is healthy.
+You can test all endpoints in Postman / Thunder Client using the provided collection.
 
 ---
 
-## 📌 Assumptions
+## ⚠️ Notes for Testers
 
-- You have Docker installed if running via Compose.
-- For local (non-Docker) runs you either have local MongoDB, or you change `MONGO_URI` accordingly.
-- JWT secret and expiry are provided via `.env`.
-- The system only needs **basic** log aggregation (e.g., last 24h sum) for demonstration purposes.
-
----
-
-
-## API Testing with Postman
-
-You can test the API endpoints using **Postman** or **Thunder Client**.
-
-1. Import the provided collection or manually create requests.
-2. For further details on API calls, check the `api_call_for_postman.txt` file in the root of the project.
-
----
+- Use `PORT=3000`, `MONGO_URI=mongodb://localhost:27018/sdm`, `REDIS_URL=redis://localhost:6379`  
+- Docker Compose must be running for MongoDB + Redis  
+- Async export jobs simulate email notification via console logs

@@ -1,10 +1,3 @@
-// // jest.config.cjs
-// module.exports = {
-//   testEnvironment: "node",
-//   transform: {}
-// };
-
-// jest.config.cjs
 module.exports = {
   testEnvironment: "node",
   transform: {},

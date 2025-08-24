@@ -28,7 +28,14 @@ export const authMiddleware = async (req, res, next) => {
         .json({ success: false, message: "User not found" });
     }
 
-    req.user = user; // attach user info to request
+    // ✅ Attach user with `id` field that matches owner_id in DB
+    req.user = {
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    };
+
     next(); // continue to the route
   } catch (err) {
     // 4️⃣ Differentiate between expired token and invalid token

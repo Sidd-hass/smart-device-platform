@@ -5,6 +5,9 @@ import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import responseTime from "response-time";
+import http from "http";
+import { Server as SocketIO } from "socket.io";
+import jwt from "jsonwebtoken";
 
 import authRoutes from "./routes/auth.js";
 import deviceRoutes from "./routes/device.routes.js";
@@ -12,8 +15,8 @@ import userRoutes from "./routes/user.routes.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
 import { perUserLimiter, authLimiter } from "./middleware/ratelimiter.js";
 import { createRedisClient } from "./config/redisClient.js";
+import exportRoutes from "./routes/export.routes.js";
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
@@ -26,11 +29,8 @@ const allowedOrigins = ["http://localhost:3000", "http://example.com"];
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
+      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+      else callback(new Error("CORS not allowed"));
     },
     credentials: true,
   })
@@ -40,11 +40,9 @@ app.use(
 app.use(helmet());
 
 // -------------------- REQUEST LOGGING -------------------- //
-morgan.token("remote-addr", function (req) {
+morgan.token("remote-addr", (req) => {
   let ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-  // if multiple IPs in X-Forwarded-For, take the first one
   if (ip && ip.includes(",")) ip = ip.split(",")[0].trim();
-  // normalize localhost
   if (ip === "::1") ip = "127.0.0.1";
   return ip;
 });
@@ -55,9 +53,8 @@ app.use(
 // Log slow responses >500ms
 app.use(
   responseTime((req, res, time) => {
-    if (time > 500) {
+    if (time > 500)
       console.warn(`⚠️ Slow request: ${req.method} ${req.originalUrl} - ${time.toFixed(0)} ms`);
-    }
   })
 );
 
@@ -69,14 +66,11 @@ app.use((req, res, next) => {
 });
 
 // -------------------- ROUTES -------------------- //
-// Public auth routes with stricter rate limit
 app.use("/auth", authLimiter, authRoutes);
-
-// Authenticated routes with looser per-user rate limit
 app.use("/devices", authMiddleware, perUserLimiter, deviceRoutes);
 app.use("/users", authMiddleware, perUserLimiter, userRoutes);
+app.use("/export", exportRoutes);
 
-// Default route
 app.get("/", (req, res) => res.send("API is running..."));
 
 // Global error handler
@@ -92,19 +86,52 @@ if (process.env.NODE_ENV !== "test") {
     .then(async () => {
       console.log("✅ MongoDB Connected");
 
-      // Start background job
       try {
         const { default: startInactiveDeviceJob } = await import("./jobs/inactiveDeviceJob.js");
-        if (typeof startInactiveDeviceJob === "function") {
-          startInactiveDeviceJob();
-        }
+        if (typeof startInactiveDeviceJob === "function") startInactiveDeviceJob();
       } catch (err) {
         console.error("⚠️ Failed to start inactive device job:", err.message);
       }
 
-      // Start server
+      // -------------------- HTTP + Socket.IO -------------------- //
       const PORT = process.env.PORT || 5000;
-      app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+      const server = http.createServer(app);
+      const io = new SocketIO(server, {
+        cors: {
+          origin: allowedOrigins,
+          methods: ["GET", "POST"],
+          credentials: true,
+        },
+      });
+
+      // -------------------- Socket.IO JWT Auth -------------------- //
+      io.use((socket, next) => {
+        const token = socket.handshake.auth?.token;
+        if (!token) return next(new Error("Authentication error"));
+
+        try {
+          const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+          socket.user = payload;
+          next();
+        } catch (err) {
+          console.error("❌ Socket JWT verification failed:", err.message);
+          next(new Error("Invalid token"));
+        }
+      });
+
+      io.on("connection", (socket) => {
+        console.log(`🟢 User connected: ${socket.user.sub}`);
+
+        socket.on("heartbeat", (data) => {
+          io.emit(`heartbeat:${socket.user.sub}`, data);
+        });
+
+        socket.on("disconnect", (reason) => {
+          console.log(`🔴 User disconnected: ${socket.user.sub}, reason: ${reason}`);
+        });
+      });
+
+      server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
     })
     .catch((err) => {
       console.error("❌ DB Connection Error:", err.message);
