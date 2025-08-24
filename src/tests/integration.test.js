@@ -33,6 +33,7 @@ const endDate = new Date().toISOString().split("T")[0];
 beforeAll(async () => {
   // ✅ init redis client (already auto-connects inside createRedisClient)
   redisClient = createRedisClient();
+  app.locals.redis = redisClient;
 
   // Spin up our own server for WebSocket tests
   server = http.createServer(app);
