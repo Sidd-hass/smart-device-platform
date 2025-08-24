@@ -1,12 +1,14 @@
 // src/tests/integration.test.js
 import request from "supertest";
-import { io as ClientIO } from "socket.io-client"; // ✅ renamed import
+import { io as ClientIO } from "socket.io-client";
 import dotenv from "dotenv";
 import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 import app from "../index.js";
+import { createRedisClient } from "../config/redisClient.js"; // ✅ import factory
 
 dotenv.config();
 
@@ -17,15 +19,21 @@ let deviceId;
 
 // server + io instance for WebSocket tests
 let server;
-let io; // server-side socket.io instance
+let io;
 let SERVER_URL;
+
+// redis client (local to test)
+let redisClient;
 
 const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   .toISOString()
   .split("T")[0];
 const endDate = new Date().toISOString().split("T")[0];
 
-beforeAll((done) => {
+beforeAll(async () => {
+  // ✅ init redis client (already auto-connects inside createRedisClient)
+  redisClient = createRedisClient();
+
   // Spin up our own server for WebSocket tests
   server = http.createServer(app);
   io = new SocketIOServer(server, {
@@ -54,16 +62,28 @@ beforeAll((done) => {
     });
   });
 
-  server.listen(0, () => {
-    const { port } = server.address();
-    SERVER_URL = `http://localhost:${port}`;
-    done();
+  await new Promise((resolve) => {
+    server.listen(0, () => {
+      const { port } = server.address();
+      SERVER_URL = `http://localhost:${port}`;
+      resolve();
+    });
   });
 }, 20000);
 
-afterAll((done) => {
-  io.close();
-  server.close(done);
+afterAll(async () => {
+  if (io) io.close();
+  if (server) server.close();
+
+  // ✅ close mongoose connection
+  if (mongoose.connection.readyState === 1) {
+    await mongoose.connection.close();
+  }
+
+  // ✅ close redis client
+  if (redisClient) {
+    await redisClient.quit();
+  }
 });
 
 describe("Smart Device Platform - Full Integration Tests", () => {
