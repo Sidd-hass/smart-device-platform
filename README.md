@@ -28,22 +28,27 @@ A **Node.js + Express + MongoDB + Redis** REST API for managing IoT devices, wit
 
 Create `.env` at project root:
 
-PORT=3000  
-MONGO_URI=mongodb://localhost:27018/sdm  
-REDIS_URL=redis://localhost:6379  
+PORT=3000
+# for runing the integration.test.js file uncomment this env for test enviorment
+# MONGO_URI=mongodb://localhost:27018/sdm
+# REDIS_URL=redis://localhost:6379
 
-# Cache TTLs  
-DEVICE_LIST_TTL_SECONDS=1200  
-USER_DATA_TTL_SECONDS=1800  
-ANALYTICS_TTL_SECONDS=300  
+# for running the npm run start (production) server comment or uncomment this for production testing
+MONGO_URI=mongodb://mongo:27017/sdm
+REDIS_URL=redis://redis:6379
 
-# JWT Tokens  
-ACCESS_TOKEN_SECRET=...  
-REFRESH_TOKEN_SECRET=...  
-ACCESS_TOKEN_EXPIRES_IN=15m  
-REFRESH_TOKEN_EXPIRES_IN=7d  
+# Cache TTLs
+DEVICE_LIST_TTL_SECONDS=1200
+USER_DATA_TTL_SECONDS=1800
+ANALYTICS_TTL_SECONDS=300
 
-NODE_ENV=development  
+# JWT Tokens
+ACCESS_TOKEN_SECRET=8ef2b7d941b2f217ffee44a71cf454b08f9e71747c7563c1acf621493de263da123152dc3c0576c5977ce7d333f95fdab6f0f301f1c7c3ab6c92e029c82baaca
+REFRESH_TOKEN_SECRET=993b049e8f77bb3d4fd3e9c3a5dece0acb25e4b6aa424f6ab64ec1877f3bb0c2bbb6d3d940950890f2f169e1e0ae13ef3c21046546adcf11a74ccb01d4e3bd4e
+ACCESS_TOKEN_EXPIRES_IN=15m
+REFRESH_TOKEN_EXPIRES_IN=7d
+
+NODE_ENV=development
 
 > Note: Your Postman requests need a valid JWT token (access token) in the Authorization header.
 
@@ -51,7 +56,7 @@ NODE_ENV=development
 
 ## 🚀 Setup & Run Locally
 
-git clone -b master <repo-url>  
+git clone -b development <repo-url>  
 cd smart-device-platform  
 npm install  
 npm run test   # run Jest tests (in-memory MongoDB)  
